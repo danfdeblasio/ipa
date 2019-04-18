@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
-#include <glpk.h>
+#include "glpx.h"
 #include "error.h"
 #include "matrix.h"
 #include "extend.h"
