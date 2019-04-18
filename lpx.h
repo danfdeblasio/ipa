@@ -553,8 +553,6 @@ int lpx_print_mip(LPX *lp, const char *fname);
 int lpx_is_b_avail(LPX *lp);
 /* check if LP basis is available */
 
-int lpx_main(int argc, const char *argv[]);
-/* stand-alone LP/MIP solver */
 
 #ifdef __cplusplus
 }
