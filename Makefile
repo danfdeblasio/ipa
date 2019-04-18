@@ -5,7 +5,7 @@ CC = gcc -std=c99
 LIBS = -lm -lglpk
 CFLAGS = -Wall -W -g 
 #CFLAGS = -O3 -DNDEBUG
-OBJS = driver.o example.o inverse.o extend.o matrix.o error.o fasta.o parse.o extend3.o
+OBJS = lpx.o driver.o example.o inverse.o extend.o matrix.o error.o fasta.o parse.o extend3.o
 
 all: $(IPA)
 
