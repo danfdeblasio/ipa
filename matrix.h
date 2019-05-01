@@ -53,5 +53,5 @@
 #define MATRIX_PAM120      21
 #define MATRIX_PAM160      22
 #define MATRIX_PAM250      23
-
+#define MATRIX_PLAIN       24
 #endif
