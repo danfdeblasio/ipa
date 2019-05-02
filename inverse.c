@@ -30,7 +30,7 @@ char  *opt_just_algn = 0;
 char   opt_maxm_itrs = 10;
 char   opt_norm_cost = 0;
 char   opt_prot_pred = 0;
-char   opt_term_gaps = 1;
+char   opt_term_gaps = 0;
 char   opt_wind_size = 1;
 double opt_conv_wght = 1;
 /* Invisible controllable options for IPA */
@@ -638,7 +638,6 @@ find_error_parameters
   constraint_modification_parameters(LP, &I);
   constraint_gap_parameters(LP, &I);
   constraint_on_degeneracy(LP, &I, MATRIX_BLOSUM62_3, used_params);
-  //constraint_on_degeneracy(LP, &I, MATRIX_PLAIN, used_params);
   int base = lpx_get_num_rows(LP)+1;
 
   /* Seeding the linear program:  This is a heuristic attempt for speeding up
@@ -907,14 +906,13 @@ static inline void write_parameters
   char* opal_path = (char*)malloc((strlen(path)+5)*sizeof(char));
   sprintf(opal_path, "%s.opal", path);
   FILE *stream2 = fopen(opal_path, "w");
-  fprintf(stream2,"--gamma %.0lf --gamma_term %.0lf --lambda %.0lf --lambda_term %.0lf\n",P[0],P[1],P[2],P[3]);
-  //printf("--gamma %.0lf --lambda %.0lf\n",P[0],P[1]);
+  if(opt_term_gaps) fprintf(stream2,"--gamma %.0lf --gamma_term %.0lf --lambda %.0lf --lambda_term %.0lf\n",P[0],P[1],P[2],P[3]);
+  else fprintf(stream2,"--gamma %.0lf --lambda %.0lf\n",P[0],P[1]);
   fclose(stream2);
 }
 
 static inline void read_parameters
 (const char *path, double *error, double *rate, double *P) {
-  printf("Initial parameter file: %s\n",path);
   FILE *stream = fopen(path, "r");
   assert(stream);
   int x;
@@ -931,8 +929,6 @@ static inline void read_parameters
 static int find_parameters
 (const alignment_t *S, const alignment_t *confidences, const alignment_t *predictions, const dist_t ***distributions, unsigned int num_alignments, const match_t *M, const block_t *B, const double **W, const char *output) { 
   /* make up the output file names. */
-  //printf("In find_parameters\n");
-  
   char param_file[2048+1];
   sprintf(param_file, "param.%c", opt_fixd_subs ? 'f' : 'v');
   if (output) { strcat(param_file, "."); strcat(param_file, output); }
@@ -989,7 +985,6 @@ static int find_parameters
   switch (opt_alph_type) {
   case 0:
     for (int i = 0; i < sub_size; i++)
-      //PP[i] = protein_matrix[MATRIX_BLOSUM62_3][i];
       PP[i] = (4.0*(16-protein_matrix[MATRIX_BLOSUM62_3][i])); ///88;
     break;
   case 1: case 2:
@@ -1001,12 +996,12 @@ static int find_parameters
       PP[i] /= 80.0;
     break;
   }
-  P[gap_offset+gap_size-1] = 1 ; //15.0/88;
-  P[len_offset+len_size-1] = 1 ; //36.0/88;
+  P[gap_offset+gap_size-1] = 15.0; ///88;
+  P[len_offset+len_size-1] = 36.0; ///88;
   for (int i = 0; i < gap_size-opt_term_gaps; i++) 
-    P[gap_offset+i] = 1 ; //60.0/88;
+    P[gap_offset+i] = 60.0; ///88;
   for (int i = 0; i < len_size-opt_term_gaps; i++) 
-    P[len_offset+i] = 1 ; //38.0/88;
+    P[len_offset+i] = 38.0; ///88;
 
 /*
   if (sw.p) {
@@ -1386,7 +1381,6 @@ int learn_parameters
   
   /* this is it. */
   int result;
-  //printf("opt_just_algn: %s\n",opt_just_algn);
   if (opt_just_algn) 
     result = apply_parameters
       (S, confidences, predictions, distributions, num_alignments,
