@@ -27,10 +27,10 @@ char   opt_disr_lvls = 1;
 char   opt_fixd_subs = 0;
 char   opt_init_triv = 0;
 char  *opt_just_algn = 0;
-char   opt_maxm_itrs = 10;
+int   opt_maxm_itrs = 10;
 char   opt_norm_cost = 0;
 char   opt_prot_pred = 0;
-char   opt_term_gaps = 0;
+int   opt_term_gaps = 0;
 char   opt_wind_size = 1;
 double opt_conv_wght = 1;
 /* Invisible controllable options for IPA */
@@ -892,23 +892,52 @@ find_error_parameters
  *****************************************************************************/
 static inline void write_parameters
 (const char *path, double error, double rate, double *P) {
+  double min = 999999999999;  
+  double max = -999999999999;
+  unsigned int i;
+  for (i = (opt_term_gaps)?4:2; i < feature_size; i++){
+    if(P[i] > max) max = P[i];
+    if(P[i] < min) min = P[i];
+  }
+  //double scale = 88.0 / (max-min);
+  //for(i = 0; i<feature_size; i++){
+  //  P[i] = 88.0 * ((P[i] - min)/(max-min));
+  //}
   FILE *stream = fopen(path, "w");
   assert(stream);
   fprintf(stream, "%d\n", opt_disr_lvls);
   fprintf(stream, "%d\n", opt_term_gaps);
   fprintf(stream, "%d\n", (int)alphabet_size);
-  unsigned int i;
   for (i = 0; i < feature_size; i++) 
     fprintf(stream, "%.40e\n", P[i]);
   fprintf(stream, "%.40e\n", rate);
   fprintf(stream, "%.40e\n", error);
   fclose(stream);
   char* opal_path = (char*)malloc((strlen(path)+5)*sizeof(char));
+  char* matrix_path = (char*)malloc((strlen(path)+7)*sizeof(char));
   sprintf(opal_path, "%s.opal", path);
+  if(opt_fixd_subs == 0) sprintf(matrix_path, "%s.matrix", path);
   FILE *stream2 = fopen(opal_path, "w");
-  if(opt_term_gaps) fprintf(stream2,"--gamma %.0lf --gamma_term %.0lf --lambda %.0lf --lambda_term %.0lf\n",P[0],P[1],P[2],P[3]);
-  else fprintf(stream2,"--gamma %.0lf --lambda %.0lf\n",P[0],P[1]);
+  FILE *stream3;
+  if(!opt_fixd_subs) stream3 = fopen(matrix_path, "w");
+  if(opt_term_gaps){
+    fprintf(stream2,"--gamma %.0lf --gamma_term %.0lf --lambda %.0lf --lambda_term %.0lf\n",88.0 * ((P[0] - min)/(max-min)), 88.0 * ((P[1] - min)/(max-min)), 88.0 * ((P[2] - min)/(max-min)), 88.0 * ((P[3] - min)/(max-min)));
+    if(!opt_fixd_subs){
+      for (i = 4; i < feature_size; i++){
+        fprintf(stream3,"%.0lf\n",88.0 * ((P[i] - min)/(max-min)));
+      }
+    }
+  }
+  else{
+    fprintf(stream2,"--gamma %.0lf --gamma_term %.0lf --lambda %.0lf --lambda_term %.0lf\n",88.0 * ((P[0] - min)/(max-min)), 88.0 * ((P[0] - min)/(max-min)), 88.0 * ((P[1] - min)/(max-min)), 88.0 * ((P[1] - min)/(max-min)));
+    if(!opt_fixd_subs){
+      for (i = 2; i < feature_size; i++){
+        fprintf(stream3,"%.0lf\n",88.0 * ((P[i] - min)/(max-min)));
+      }
+    }
+  }
   fclose(stream2);
+  fclose(stream3);
 }
 
 static inline void read_parameters
@@ -1101,6 +1130,10 @@ static int find_parameters
   } while (curr_error/prev_error <= ratio && 
 	   num_iterations < opt_maxm_itrs);
 
+  if(num_iterations >= opt_maxm_itrs){
+    printf("Stopped because number of iterations exceeded (%d>=%d)\n",(int)num_iterations, (int)opt_maxm_itrs);
+  }
+
   fprintf(report, "(End)\n");
   fclose(report);
   free(used_params);
@@ -1115,6 +1148,9 @@ static int find_parameters
 	    (int)best_iteration, param_file);
     system(report_file);
     sprintf(report_file, "\\cp -f %s.%02d.opal %s.opal", param_file,
+              (int)best_iteration, param_file);
+    system(report_file);
+    sprintf(report_file, "\\cp -f %s.%02d.matrix %s.matrix", param_file,
               (int)best_iteration, param_file);
     system(report_file);
   }

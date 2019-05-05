@@ -43,11 +43,11 @@ int parse_options(int *argc, char **argv[]) {
   //extern char   opt_disr_lvls;
   //extern char   opt_init_triv;
   extern char  *opt_just_algn;
-  extern char   opt_maxm_itrs;
+  extern int   opt_maxm_itrs;
   //extern char   opt_norm_cost;
   //extern double opt_conv_wght;
   //extern char   opt_prot_pred;
-  extern char   opt_term_gaps;
+  extern int   opt_term_gaps;
   //extern char   opt_wind_size;
   
   int opt;
@@ -77,7 +77,7 @@ int parse_options(int *argc, char **argv[]) {
 //    case 'N': opt_norm_cost = (char)atoi(optarg); break;
     case 'f': opt_fixd_subs = 1; break;
     case 'p': opt_just_algn = optarg; break;
-    case 'x': opt_maxm_itrs = (char)atoi(optarg); break;
+    case 'x': opt_maxm_itrs = atoi(optarg); break;
     case 'S': opt_stat = 1; break;
     case 'I': input  = optarg; break;
     case 'O': output = optarg; break;
