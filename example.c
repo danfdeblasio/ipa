@@ -24,6 +24,7 @@ get_alignments
   assert(*A);
   unsigned int i, j;
   for (i = 0; i < num_alignments; i++) {
+    printf("opening %s\n",path[i]);
     read_fasta(path[i], 1, &(*A)[i].name, &(*A)[i].string, &(*A)[i].count);
     (*A)[i].length = (unsigned int *)malloc((*A)[i].count*sizeof(unsigned int));
     assert((*A)[i].length);

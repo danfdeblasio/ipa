@@ -27,6 +27,7 @@ int parse_options(int *argc, char **argv[]) {
     { "output",              required_argument, 0, 'O' },
     { "debug",               no_argument,       0, 'd' },
     { "verbose",             no_argument,       0, 'v' },
+    { "file-list",            required_argument, 0, 'l'},
     { 0,                     0,                 0,  0  }
   };
 
@@ -35,6 +36,7 @@ int parse_options(int *argc, char **argv[]) {
   extern char   opt_verb;
   extern char   opt_debg;
   extern char   opt_stat;
+  extern char  *opt_flist;
   //extern char   opt_part_exam;
   //extern char   opt_alph_type;
   //extern char   opt_disr_meas;
@@ -78,6 +80,7 @@ int parse_options(int *argc, char **argv[]) {
     case 'f': opt_fixd_subs = 1; break;
     case 'p': opt_just_algn = optarg; break;
     case 'x': opt_maxm_itrs = atoi(optarg); break;
+    case 'l': opt_flist = optarg; break;
     case 'S': opt_stat = 1; break;
     case 'I': input  = optarg; break;
     case 'O': output = optarg; break;
