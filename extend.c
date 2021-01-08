@@ -217,7 +217,7 @@ complete_examples
 	fprintf(stderr, "\n");
       else error("\n");
     }
-    if (new_cost > old_cost+1e-12)
+    if (new_cost > old_cost+1e-4)
       error("the old score(%f) is better than the new score(%f).\n", 
 	    old_cost, new_cost);
   }

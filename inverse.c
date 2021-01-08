@@ -30,7 +30,7 @@ char  *opt_just_algn = 0;
 int   opt_maxm_itrs = 10;
 char   opt_norm_cost = 0;
 char   opt_prot_pred = 0;
-int   opt_term_gaps = 0;
+int   opt_term_gaps = 1;
 char   opt_wind_size = 1;
 double opt_conv_wght = 1;
 /* Invisible controllable options for IPA */
@@ -925,6 +925,7 @@ static inline void write_parameters
     if(!opt_fixd_subs){
       for (i = 4; i < feature_size; i++){
         fprintf(stream3,"%.0lf\n",88.0 * ((P[i] - min)/(max-min)));
+        //fprintf(stream3,"%.0lf (%d of %d)\n",88.0 * ((P[i] - min)/(max-min)),i,feature_size);
       }
     }
   }
@@ -933,11 +934,12 @@ static inline void write_parameters
     if(!opt_fixd_subs){
       for (i = 2; i < feature_size; i++){
         fprintf(stream3,"%.0lf\n",88.0 * ((P[i] - min)/(max-min)));
+        //fprintf(stream3,"%.0lf (%d of %d)\n",88.0 * ((P[i] - min)/(max-min)),i,feature_size);
       }
     }
   }
   fclose(stream2);
-  fclose(stream3);
+  if(!opt_fixd_subs) fclose(stream3);
 }
 
 static inline void read_parameters
@@ -1150,9 +1152,11 @@ static int find_parameters
     sprintf(report_file, "\\cp -f %s.%02d.opal %s.opal", param_file,
               (int)best_iteration, param_file);
     system(report_file);
-    sprintf(report_file, "\\cp -f %s.%02d.matrix %s.matrix", param_file,
+    if(!opt_fixd_subs){
+      sprintf(report_file, "\\cp -f %s.%02d.matrix %s.matrix", param_file,
               (int)best_iteration, param_file);
-    system(report_file);
+      system(report_file);
+    }
   }
   return (found == true) ? LPX_OPT : status;
 }

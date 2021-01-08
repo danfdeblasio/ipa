@@ -1,0 +1,1 @@
+--gamma 80 --gamma_term 80 --lambda 30 --lambda_term 30

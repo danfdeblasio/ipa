@@ -1,0 +1,1 @@
+--gamma 63 --gamma_term 63 --lambda 35 --lambda_term 35
