@@ -5,7 +5,7 @@
 #include "inverse.h"
 
 int parse_options(int *argc, char **argv[]) {
-  char sparam[] = "DRCg:m:s:o:w:n:l:TtN:fp:x:SI:O:dv";
+  char sparam[] = "DRCg:m:s:o:w:n:l:TtN:fm:p:x:SI:O:dv";
   struct option lparam[] = {
 //    { "DNA",                 no_argument,       0, 'D' },
 //    { "RNA",                 no_argument,       0, 'R' },
@@ -20,6 +20,7 @@ int parse_options(int *argc, char **argv[]) {
     { "no-terminal-gaps",    no_argument,       0, 't' },
 //    { "normalization",       required_argument, 0, 'N' },
     { "fixed-substitution",  no_argument,       0, 'f' },
+    { "matrix",               required_argument, 0, 'm'},
     { "pairwise-alignments", required_argument, 0, 'p' },
     { "iterations",          required_argument, 0, 'x' },
     { "show-statistics",     no_argument,       0, 'S' },
@@ -42,6 +43,7 @@ int parse_options(int *argc, char **argv[]) {
   //extern char   opt_disr_meas;
   //extern char   opt_cont_gaps;
   extern char   opt_fixd_subs;
+  extern int    opt_matrix_id;
   //extern char   opt_disr_lvls;
   //extern char   opt_init_triv;
   extern char  *opt_just_algn;
@@ -78,6 +80,7 @@ int parse_options(int *argc, char **argv[]) {
     case 't': opt_term_gaps = 0; break;
 //    case 'N': opt_norm_cost = (char)atoi(optarg); break;
     case 'f': opt_fixd_subs = 1; break;
+    case 'm': opt_matrix_id = atoi(optarg); break;
     case 'p': opt_just_algn = optarg; break;
     case 'x': opt_maxm_itrs = atoi(optarg); break;
     case 'l': opt_flist = optarg; break;

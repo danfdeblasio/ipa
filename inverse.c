@@ -25,6 +25,7 @@ char   opt_cont_gaps = 3;
 char   opt_disr_meas = 0;
 char   opt_disr_lvls = 1;
 char   opt_fixd_subs = 0;
+int    opt_matrix_id = MATRIX_BLOSUM62_3;
 char   opt_init_triv = 0;
 char  *opt_just_algn = 0;
 int   opt_maxm_itrs = 10;
@@ -131,7 +132,8 @@ double *translate_to_cost(unsigned int matrix_index, unsigned int matrix_size)
     if (max < score_matrix[i]) max = score_matrix[i];
   }
   for (unsigned int i = 0; i < matrix_size; i++)
-    cost_matrix[i] = (max-score_matrix[i])/(max-min);
+    if(matrix_index <= MATRIX_PLAIN) cost_matrix[i] = (max-score_matrix[i])/(max-min);
+    else cost_matrix[i] = score_matrix[i];
   return cost_matrix;
 }
 
@@ -637,7 +639,7 @@ find_error_parameters
   constraint_substitution_parameters(LP, &I);
   constraint_modification_parameters(LP, &I);
   constraint_gap_parameters(LP, &I);
-  constraint_on_degeneracy(LP, &I, MATRIX_BLOSUM62_3, used_params);
+  constraint_on_degeneracy(LP, &I, opt_matrix_id, used_params);
   int base = lpx_get_num_rows(LP)+1;
 
   /* Seeding the linear program:  This is a heuristic attempt for speeding up
@@ -963,7 +965,7 @@ static int find_parameters
   char param_file[2048+1];
   sprintf(param_file, "param.%c", opt_fixd_subs ? 'f' : 'v');
   if (output) { strcat(param_file, "."); strcat(param_file, output); }
-  char report_file[2048+1];
+  char report_file[8192+1];
   sprintf(report_file, "score.%c", opt_fixd_subs ? 'f' : 'v');
   if (output) { strcat(report_file, "."); strcat(report_file, output); }  
   /* allocate heap for parameters. */
@@ -1014,9 +1016,10 @@ static int find_parameters
   /* Default values for parameters. */
   double *PP = &P[sub_offset];
   switch (opt_alph_type) {
-  case 0:
+  case 0: // protein
     for (int i = 0; i < sub_size; i++)
-      PP[i] = (4.0*(16-protein_matrix[MATRIX_BLOSUM62_3][i])); ///88;
+      if(opt_matrix_id <= MATRIX_PLAIN) PP[i] = (4.0*(16-protein_matrix[opt_matrix_id][i])); ///88;
+      else PP[i] = protein_matrix[opt_matrix_id][i]; ///88;
     break;
   case 1: case 2:
     PP[0] = 40; 
@@ -1120,7 +1123,7 @@ static int find_parameters
     }
     if (opt_verb) fprintf(stderr, "Average error     : %.4e\n", curr_error);
     if (opt_verb) fprintf(stderr, "Average recovery  : %.2f\n", cover);
-    char buffer[2048+1];
+    char buffer[4096+1];
     sprintf(buffer, "%s.%02d", param_file, (int)num_iterations);
     write_parameters(buffer, curr_error, cover, P);
     fprintf(report, "Time spent        : %d.%02d\n", 
